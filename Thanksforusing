@@ -1,5 +1,6 @@
 --[[
-COMPACT SNOW V5.6 - EXTERNAL EDITION
+COMPACT SNOW V5.6 - EXTERNAL EDITION (WITH DROPDOWNS)
+LINK: https://raw.githubusercontent.com/sd1246846/Simple-lib/refs/heads/main/Thanksforusing
 ]]
 
 local Players = game:GetService("Players")
@@ -159,38 +160,20 @@ function Library:CreateWindow(title, restoreText)
         function ElementApi:AddSlider(text, min, max, default, callback)
             local sliderId = #Library.Sliders + 1
             Library.Sliders[sliderId] = { Func = callback, Default = default }
-            
             local S = Instance.new("Frame", TabPage); S.Size = UDim2.new(1, -5, 0, 38); S.BackgroundTransparency = 1
             local L = Instance.new("TextLabel", S); L.Text = text .. ": " .. default; L.Size = UDim2.new(1,0,0,14); L.TextColor3 = Color3.fromRGB(255,255,255); L.BackgroundTransparency = 1; L.TextXAlignment = "Left"; L.Font = "GothamBold"; L.TextSize = TextScale - 1
             local Bar = Instance.new("Frame", S); Bar.Size = UDim2.new(0.9, 0, 0, 4); Bar.Position = UDim2.new(0, 5, 0, 24); Bar.BackgroundColor3 = Color3.fromRGB(35,35,45); Instance.new("UICorner", Bar)
             local Fill = Instance.new("Frame", Bar); Fill.Size = UDim2.new(0,0,1,0); Fill.BackgroundColor3 = Color3.fromRGB(255,255,255); Instance.new("UICorner", Fill); Fill.ZIndex = 2
             local Ball = Instance.new("Frame", Bar); Ball.Size = UDim2.new(0, 12, 0, 12); Ball.AnchorPoint = Vector2.new(0.5, 0.5); Ball.Position = UDim2.new(0,0,0.5,0); Ball.BackgroundColor3 = Color3.fromRGB(255,255,255); Ball.ZIndex = 4; Ball.BorderSizePixel = 0; Instance.new("UICorner", Ball).CornerRadius = UDim.new(1, 0)
-            
             local isDragging = false
             local function update(input)
                 local p = math.clamp((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
                 Fill.Size = UDim2.new(p, 0, 1, 0); Ball.Position = UDim2.new(p, 0, 0.5, 0)
                 local val = math.floor(min + (max - min) * p); L.Text = text .. ": " .. val; callback(val)
             end
-            
-            Bar.InputBegan:Connect(function(input) 
-                if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
-                    isDragging = true; update(input) 
-                end 
-            end)
-            
-            UserInputService.InputChanged:Connect(function(input) 
-                if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then 
-                    update(input) 
-                end 
-            end)
-            
-            UserInputService.InputEnded:Connect(function(input) 
-                if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
-                    isDragging = false 
-                end 
-            end)
-            
+            Bar.InputBegan:Connect(function(input) if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then isDragging = true; update(input) end end)
+            UserInputService.InputChanged:Connect(function(input) if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then update(input) end end)
+            UserInputService.InputEnded:Connect(function(input) if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then isDragging = false end end)
             local startP = math.clamp((default - min) / (max - min), 0, 1); Fill.Size = UDim2.new(startP, 0, 1, 0); Ball.Position = UDim2.new(startP, 0, 0.5, 0)
         end
 
@@ -221,9 +204,30 @@ function Library:CreateWindow(title, restoreText)
             local Line = Instance.new("Frame", S); Line.Size = UDim2.new(1, 0, 0, 1); Line.Position = UDim2.new(0, 0, 1, 0); Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Line.BackgroundTransparency = 0.9
         end
 
+        function ElementApi:AddDropdown(text, list, callback)
+            local D = Instance.new("Frame", TabPage); D.Size = UDim2.new(1, -5, 0, 30); D.BackgroundTransparency = 1; D.ClipsDescendants = true
+            local B = Instance.new("TextButton", D); B.Size = UDim2.new(1, 0, 0, 30); B.BackgroundColor3 = Color3.fromRGB(25, 25, 30); B.TextColor3 = Color3.fromRGB(255, 255, 255); B.Text = text .. " : Select"; B.Font = "GothamBold"; B.TextSize = TextScale - 1; Instance.new("UICorner", B)
+            local ListHolder = Instance.new("Frame", D); ListHolder.Position = UDim2.new(0, 0, 0, 35); ListHolder.Size = UDim2.new(1, 0, 0, 0); ListHolder.BackgroundTransparency = 1
+            local ListLayout = Instance.new("UIListLayout", ListHolder); ListLayout.Padding = UDim.new(0, 5)
+            local open = false
+            B.MouseButton1Click:Connect(function()
+                open = not open
+                TweenService:Create(D, TweenInfo.new(0.3), {Size = open and UDim2.new(1, -5, 0, 35 + (#list * 30)) or UDim2.new(1, -5, 0, 30)}):Play()
+            end)
+            for _, val in pairs(list) do
+                local Opt = Instance.new("TextButton", ListHolder); Opt.Size = UDim2.new(1, 0, 0, 25); Opt.BackgroundColor3 = Color3.fromRGB(35, 35, 40); Opt.TextColor3 = Color3.fromRGB(200, 200, 200); Opt.Text = val; Opt.Font = "GothamBold"; Opt.TextSize = TextScale - 1; Instance.new("UICorner", Opt)
+                Opt.MouseButton1Click:Connect(function()
+                    B.Text = text .. " : " .. val; open = false
+                    TweenService:Create(D, TweenInfo.new(0.3), {Size = UDim2.new(1, -5, 0, 30)}):Play()
+                    callback(val)
+                end)
+            end
+        end
+
         return ElementApi
     end
     return TabApi
 end
 
 return Library
+
