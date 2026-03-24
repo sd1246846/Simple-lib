@@ -1,8 +1,5 @@
 --[[
-COMPACT SNOW V5.6 - INDEPENDENT SLIDERS
-    ∙ Fix: Localized dragging variables so sliders don't move together.
-    ∙ Feature: Unload resets stats (WalkSpeed 16, JumpPower 50) and toggles.
-    ∙ Snow: Main Frame, Reopen Pill, and Confirm Menu.
+COMPACT SNOW V5.6 - EXTERNAL EDITION
 ]]
 
 local Players = game:GetService("Players")
@@ -19,7 +16,7 @@ local MainSize = IsMobile and UDim2.new(0, 360, 0, 240) or UDim2.new(0, 500, 0, 
 local SidebarWidth = IsMobile and 90 or 120
 local TextScale = IsMobile and 10 or 11
 
-function Library:Init(title, restoreText)
+function Library:CreateWindow(title, restoreText)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CompactV5_Final_Fix"
     ScreenGui.ResetOnSpawn = false
@@ -159,7 +156,7 @@ function Library:Init(title, restoreText)
 
         local ElementApi = {}
 
-        function ElementApi:CreateSlider(text, min, max, default, callback)
+        function ElementApi:AddSlider(text, min, max, default, callback)
             local sliderId = #Library.Sliders + 1
             Library.Sliders[sliderId] = { Func = callback, Default = default }
             
@@ -169,7 +166,6 @@ function Library:Init(title, restoreText)
             local Fill = Instance.new("Frame", Bar); Fill.Size = UDim2.new(0,0,1,0); Fill.BackgroundColor3 = Color3.fromRGB(255,255,255); Instance.new("UICorner", Fill); Fill.ZIndex = 2
             local Ball = Instance.new("Frame", Bar); Ball.Size = UDim2.new(0, 12, 0, 12); Ball.AnchorPoint = Vector2.new(0.5, 0.5); Ball.Position = UDim2.new(0,0,0.5,0); Ball.BackgroundColor3 = Color3.fromRGB(255,255,255); Ball.ZIndex = 4; Ball.BorderSizePixel = 0; Instance.new("UICorner", Ball).CornerRadius = UDim.new(1, 0)
             
-            -- LOCAL DRAG STATE FIX
             local isDragging = false
             local function update(input)
                 local p = math.clamp((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
@@ -198,7 +194,7 @@ function Library:Init(title, restoreText)
             local startP = math.clamp((default - min) / (max - min), 0, 1); Fill.Size = UDim2.new(startP, 0, 1, 0); Ball.Position = UDim2.new(startP, 0, 0.5, 0)
         end
 
-        function ElementApi:CreateToggle(text, callback)
+        function ElementApi:AddToggle(text, callback)
             local toggleId = #Library.Toggles + 1
             Library.Toggles[toggleId] = { Func = callback, State = false }
             local T = Instance.new("Frame", TabPage); T.Size = UDim2.new(1, -5, 0, 28); T.BackgroundTransparency = 1
@@ -214,12 +210,12 @@ function Library:Init(title, restoreText)
             end)
         end
 
-        function ElementApi:CreateButton(text, callback)
+        function ElementApi:AddButton(text, callback)
             local B = Instance.new("TextButton", TabPage); B.Size = UDim2.new(1, -5, 0, 28); B.BackgroundColor3 = Color3.fromRGB(30, 30, 38); B.TextColor3 = Color3.fromRGB(255, 255, 255); B.Text = text; B.Font = "GothamBold"; B.TextSize = TextScale - 1; Instance.new("UICorner", B)
             B.MouseButton1Click:Connect(callback)
         end
         
-        function ElementApi:CreateSection(text)
+        function ElementApi:AddLabel(text)
             local S = Instance.new("Frame", TabPage); S.Size = UDim2.new(1, -5, 0, 25); S.BackgroundTransparency = 1
             local L = Instance.new("TextLabel", S); L.Text = text:upper(); L.Size = UDim2.new(1, 0, 1, 0); L.TextColor3 = Color3.fromRGB(255, 255, 255); L.BackgroundTransparency = 1; L.Font = "GothamBold"; L.TextSize = TextScale - 2; L.TextXAlignment = "Left"
             local Line = Instance.new("Frame", S); Line.Size = UDim2.new(1, 0, 0, 1); Line.Position = UDim2.new(0, 0, 1, 0); Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Line.BackgroundTransparency = 0.9
